@@ -8,7 +8,7 @@
           class="form-control"
           id="FullName"
           placeholder="Full lName"
-          v-model="employeeEdit.FullName" 
+          v-model="employeeEdit.FullName"
         />
       </div>
       <div class="form-group">
@@ -18,7 +18,7 @@
           class="form-control"
           id="Address"
           placeholder="Address"
-          v-model="employeeEdit.Address" 
+          v-model="employeeEdit.Address"
         />
       </div>
       <div class="form-group">
@@ -44,53 +44,56 @@
 </template>
 <script>
 import EmployeeService from "../../service/employee.service";
-import toastr from 'toastr'
-import employeeMixin from './mixins/employee.mixins'
+import toastr from "toastr";
+import employeeMixin from "./mixins/employee.mixins";
 export default {
   name: "edit",
   mixins: [employeeMixin],
   data() {
-    return { 
+    return {
       id: this.$route.params.id
     };
   },
   methods: {
+    
     saveEmpl: function() {
-      //edit
-      EmployeeService.update(
-        "/persons/update/",
-        this.employeeEdit.ID,
-        this.employeeEdit
-      ).then(rp => {
-        if (rp.status) {
-          toastr.success(rp.messages)
-          //
-          this.employeeEdit = {}; 
-          this.$router.push({ path: '/' })
-        } else {
-           toastr.console.error(rp.messages); 
-          console.log("Messages: " + rp.messages);
-          console.log("Exception: " + rp.exception);
-        }
-      });
+      if (this.vallidData()) {
+        //edit
+        EmployeeService.update(
+          "/persons/update/",
+          this.employeeEdit.ID,
+          this.employeeEdit
+        ).then(rp => {
+          if (rp.status) {
+            toastr.success(rp.messages);
+            //
+            this.employeeEdit = {};
+            this.$router.push({ path: "/" });
+          } else {
+            toastr.error(rp.messages);
+            console.log("Messages: " + rp.messages);
+            console.log("Exception: " + rp.exception);
+          }
+        });
+      }
     }
   },
   watch: {
     $route(to, from) {
-      this.id = to.params.id; 
+      this.id = to.params.id;
     }
   },
-  created() { 
+  created() {
     EmployeeService.get("/persons/edit/", this.id).then(rp => {
       if (rp.status) {
         this.employeeEdit = rp.data;
-      } else { 
-        toastr.error(rp.messages); 
+      } else {
+        toastr.error(rp.messages);
         console.log("Messages: " + rp.messages);
         console.log("Exception: " + rp.exception);
       }
     });
-  } 
+  }
 };
 </script>
 <style scoped>

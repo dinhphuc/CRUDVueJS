@@ -8,9 +8,11 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import toastr from 'toastr'
 import 'toastr/build/toastr.min.css'
 Vue.config.productionTip = false
+Vue.config.devtools = process.env.NODE_ENV === 'development'
+
 
 Vue.directive("ageValid", {
-  update: function (el, binding, vnode) {
+  update: function (el, binding, vnode) { 
     if (binding.value <= 0 || binding.value > 150) {
       toastr.error(`Age: ${binding.value} is not correct`);
     }

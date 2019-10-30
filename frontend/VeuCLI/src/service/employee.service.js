@@ -6,7 +6,7 @@ Vue.use(VueAxios, axios)
 
 export default class EmployeeService {
     //static baseURL = 'http://localhost:4000';
-     static baseURL = 'https://phucnd-api.herokuapp.com';
+    static baseURL = 'https://phucnd-api.herokuapp.com';
   
     static async getAll(url) {
         let res = await axios.get(this.baseURL + url)
