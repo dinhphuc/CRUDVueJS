@@ -1,4 +1,4 @@
-# CRUD VeuJS
+# CRUD VueJS
 ### Server
 #### Local
 - `$ cd backend`
