@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <h2 class="text-center">Employee list</h2>
@@ -10,7 +9,12 @@
         <div class="col-md"></div>
         <div class="col-md">Fillter</div>
         <div class="col-md">
-          <div class="form-control"></div>
+          <input
+            class="form-control"
+            type="text"
+            v-model="search"
+            @change="filteredList"
+          />
         </div>
       </div>
 
@@ -42,17 +46,24 @@
               <div></div>
             </div>
           </tr>
-          <tr v-for="(employee,index) in employees" :key="index">
-            <td scope="row">{{index+1}}</td>
-            <td>{{employee.FullName}}</td>
-            <td>{{employee.Address}}</td>
-            <td>{{employee.Age}}</td>
+          <tr v-for="(employee, index) in employees" :key="index">
+            <td scope="row">{{ index + 1 }}</td>
+            <td>{{ employee.FullName }}</td>
+            <td>{{ employee.Address }}</td>
+            <td>{{ employee.Age }}</td>
             <td class="text-center">
-              <router-link tag="a" class="btn btn-success" :to="`/edit/${employee.ID}`">Edit</router-link>
+              <router-link
+                tag="a"
+                class="btn btn-success"
+                :to="`/edit/${employee.ID}`"
+                >Edit</router-link
+              >
               <button
                 class="btn btn-warning"
-                @click="deleteEmpl(employee.ID,employee.FullName)"
-              >Delete</button>
+                @click="deleteEmpl(employee.ID, employee.FullName)"
+              >
+                Delete
+              </button>
             </td>
           </tr>
         </tbody>
@@ -61,54 +72,52 @@
   </div>
 </template>
 <script>
-import EmployeeService from "../../service/employee.service";
-import toastr from "toastr";
+import EmployeeService from '../../service/employee.service'
+import toastr from 'toastr'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
-  name: "index",
   data() {
     return {
-      employees: [],
-      employeeEdit: {},
-      isLoading: true
-    };
-  },
-  methods: {
-    loadData: function() {
-      EmployeeService.getAll("/persons").then(rp => {
-        if (rp.status) {
-          this.employees = rp.data;
-        } else {
-          toastr.error(rp.messages);
-          console.log("Messages: " + rp.messages);
-          console.log("Exception: " + rp.exception);
-        }
-      });
-    },
-    deleteEmpl: function(id, name) {
-      var r = confirm("Xóa: " + name);
-      if (r) {
-        EmployeeService.delete("/persons/delete/", id).then(rp => {
-          if (rp.status) {
-            this.loadData();
-            toastr.success(rp.messages);
-          } else {
-            console.log("Messages: " + rp.messages);
-            console.log("Exception: " + rp.exception);
-          }
-        });
-      }
+      isLoading: true,
+      search: ''
     }
   },
+  name: 'index',
+  methods: {
+    deleteEmpl: function(id, name) {
+      var r = confirm('Xóa: ' + name)
+      if (r) {
+        this.$store.dispatch('delEmployee', id).then((x) => {
+          if (x.status) {
+            toastr.success(x.messages)
+            this.$router.push({ path: '/' })
+            this.$store.dispatch('getEmployees')
+          } else {
+            toastr.error(x.messages)
+          }
+        })
+      }
+    },
+    filteredList: function() {
+      return this.$store.state.employees.filter((empl) =>
+        empl.FullName.toLowerCase().includes(this.search.toLowerCase())
+      )
+    }
+  },
+  computed: mapState({
+    employees: (state) => state.employees
+  }),
   created() {
-    this.loadData();
+    // Call getEmployees
+    this.$store.dispatch('getEmployees')
   },
   updated() {
     if (this.employees.length >= 0) {
-      this.isLoading = false;
+      this.isLoading = false
     }
-  } 
-};
+  }
+}
 </script>
 <style scoped>
 .spin {
@@ -128,7 +137,7 @@ export default {
   animation: lds-spinner 1.2s linear infinite;
 }
 .lds-spinner div:after {
-  content: " ";
+  content: ' ';
   display: block;
   position: absolute;
   top: 3px;

@@ -29,10 +29,14 @@
           id="Age"
           placeholder="Age"
           v-model="employeeEdit.Age"
-          v-ageValid="employeeEdit.Age"
         />
       </div>
-      <input type="button" class="btn btn-success" @click="saveEmpl" value="Save" />
+      <input
+        type="button"
+        class="btn btn-success"
+        @click="saveEmpl"
+        value="Save"
+      />
       <input
         type="button"
         class="btn btn-primary"
@@ -43,30 +47,31 @@
   </div>
 </template>
 <script>
-import EmployeeService from "../../service/employee.service";
-import toastr from "toastr";
-import employeeMixin from "./mixins/employee.mixins";
+import toastr from 'toastr'
+import employeeMixin from './mixins/employee.mixins'
 export default {
-  name: "create",
+  name: 'create',
+  data() {
+    return {
+      employeeEdit: {}
+    }
+  },
   mixins: [employeeMixin],
   methods: {
     saveEmpl: function() {
       if (this.vallidData()) {
-        EmployeeService.create("/persons/add/", this.employeeEdit).then(rp => {
-          if (rp.status) {
-            toastr.success(rp.messages);
-            //
-            this.employeeEdit = {};
+        this.$store.dispatch('createEmployee', this.employeeEdit).then((x) => {
+          if (x.status) {
+            toastr.success(x.messages)
+            this.$router.push({ path: '/' })
+            this.$store.dispatch('getEmployees')
           } else {
-            toastr.error(rp.messages);
-            console.log("Messages: " + rp.messages);
-            console.log("Exception: " + rp.exception);
+            toastr.error(x.messages)
           }
-        });
+        })
       }
     }
   }
-};
+}
 </script>
-<style scoped>
-</style>
+<style scoped></style>

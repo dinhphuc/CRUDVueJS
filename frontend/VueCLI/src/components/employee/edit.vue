@@ -29,10 +29,14 @@
           id="Age"
           placeholder="Age"
           v-model="employeeEdit.Age"
-          v-ageValid="employeeEdit.Age"
         />
       </div>
-      <input type="button" class="btn btn-success" @click="saveEmpl" value="Save" />
+      <input
+        type="button"
+        class="btn btn-success"
+        @click="saveEmpl"
+        value="Save"
+      />
       <input
         type="button"
         class="btn btn-primary"
@@ -43,58 +47,45 @@
   </div>
 </template>
 <script>
-import EmployeeService from "../../service/employee.service";
-import toastr from "toastr";
-import employeeMixin from "./mixins/employee.mixins";
+import toastr from 'toastr'
+import employeeMixin from './mixins/employee.mixins'
+import { mapState, mapGetters, mapActions } from 'vuex'
 export default {
-  name: "edit",
+  name: 'edit',
   mixins: [employeeMixin],
   data() {
     return {
       id: this.$route.params.id
-    };
+    }
   },
+  // methods: { ...mapActions(['saveEmployee']) },
   methods: {
-    
     saveEmpl: function() {
       if (this.vallidData()) {
         //edit
-        EmployeeService.update(
-          "/persons/update/",
-          this.employeeEdit.ID,
-          this.employeeEdit
-        ).then(rp => {
-          if (rp.status) {
-            toastr.success(rp.messages);
-            //
-            this.employeeEdit = {};
-            this.$router.push({ path: "/" });
+        this.$store.dispatch('saveEmployee', this.employeeEdit).then((x) => {
+          if (x.status) {
+            toastr.success(x.messages)
+            this.$router.push({ path: '/' })
+            this.$store.dispatch('getEmployees')
           } else {
-            toastr.error(rp.messages);
-            console.log("Messages: " + rp.messages);
-            console.log("Exception: " + rp.exception);
+            toastr.error(x.messages)
           }
-        });
+        })
       }
     }
   },
   watch: {
     $route(to, from) {
-      this.id = to.params.id;
+      this.id = to.params.id
     }
   },
+  computed: mapState({
+    employeeEdit: (state) => state.employee
+  }),
   created() {
-    EmployeeService.get("/persons/edit/", this.id).then(rp => {
-      if (rp.status) {
-        this.employeeEdit = rp.data;
-      } else {
-        toastr.error(rp.messages);
-        console.log("Messages: " + rp.messages);
-        console.log("Exception: " + rp.exception);
-      }
-    });
+    this.$store.dispatch('getEmployee', this.id)
   }
-};
+}
 </script>
-<style scoped>
-</style>
+<style scoped></style>
